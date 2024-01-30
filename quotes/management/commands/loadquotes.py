@@ -24,7 +24,6 @@ class Command(BaseCommand):
                         "quote": Quote(quote=quote_data['quote'], author=author),
                         "tags": quote_data["tags"]
                     })
-                print([len(tag) for tag in tags])
                 tags = [Tag(name=tag) for tag in tags]
                 Tag.objects.bulk_create(tags)
 
