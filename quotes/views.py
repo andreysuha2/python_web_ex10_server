@@ -1,11 +1,25 @@
-from django.shortcuts import render
+from django.views.generic import ListView
+from django.views.generic.detail import DetailView
 from django.views import View
-from django.http import HttpRequest
+from django.db.models import Count
+from .models import Quote, Tag
 
 
 # Create your views here.
-class MainPageView(View):
+class MainPageView(ListView):
     template_name = 'quotes/index.html'
+    context_object_name = 'quotes_list'
+    model = Quote
+    paginate_by = 10
+    top_tags_count = 10
 
-    def get(self, request: HttpRequest):
-        return render(request, self.template_name)
+    def get_context_data(self, *args, **kwargs):
+        context = super(MainPageView, self).get_context_data(*args, **kwargs)
+        context['top_tags'] = Tag.objects.annotate(num_quotes=Count('quote')).order_by('-num_quotes')[:10]
+        return context
+
+
+class TagPageView(DetailView):
+    template_name = 'quotes/tag.html'
+    model = Tag
+    context_object_name = 'tag'
