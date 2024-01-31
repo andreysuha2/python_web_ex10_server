@@ -1,7 +1,8 @@
 from django.views.generic import ListView
 from django.views.generic.detail import DetailView
-from django.views import View
+from django.views.generic.edit import CreateView
 from django.db.models import Count
+from django.shortcuts import redirect
 from .models import Quote, Tag
 
 
@@ -23,3 +24,15 @@ class TagPageView(DetailView):
     template_name = 'quotes/tag.html'
     model = Tag
     context_object_name = 'tag'
+
+
+class CreateQuoteView(CreateView):
+    model = Quote
+    fields = ['quote', 'tags', 'author']
+    template_name = 'quotes/quote_create_form.html'
+
+    def form_valid(self, form):
+        self.object = form.save(commit=False)
+        self.object.user = self.request.user
+        self.object.save()
+        return redirect(to='quotes:create.quote')
